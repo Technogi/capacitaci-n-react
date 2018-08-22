@@ -1,15 +1,28 @@
 import { Component } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
+import { connect, Provider } from 'react-redux'
 
 import Head from '../components/head'
 import Nav from '../components/nav'
 
-const mensajes = ['hola technogi', 'hola 2', 'hola 3'];
 
-function renderMensajes() {
-  return mensajes.map(mensaje => <div>{mensaje}</div>)
+class TodoCard extends Component {
+  render() {
+    return (
+      <div style={styles.card}>
+        <h5>{this.props.todo.title}</h5>
+        <div>asignada a: {this.props.username}</div>
+      </div>
+    )
+  }
 }
+
+TodoCard = connect(function(state){
+  return {
+    username: state.username
+  }
+})(TodoCard)
 
 class IndexPage extends Component {
   state = {
@@ -18,56 +31,52 @@ class IndexPage extends Component {
     todos: [],
   }
 
-  constructor(props){
+  constructor(props) {
     super(props)
   }
 
-  componentDidMount(){
+  componentDidMount() {
     axios.get('https://jsonplaceholder.typicode.com/todos')
-      .then(response=>{
-        this.setState({todos: response.data})
+      .then(response => {
+        this.setState({ todos: response.data })
       })
-      .catch(e=>console.log(e))
+      .catch(e => console.log(e))
   }
 
-  onClick(r, e){
-    this.setState({contador: this.state.contador +1})
+  onClick(r, e) {
+    this.setState({ contador: this.state.contador + 1 })
   }
-  
-  renderTodos(){
-    return this.state.todos.map(todo=>{
-      return <li>{todo.title}</li>
+
+  renderTodos() {
+    return this.state.todos.map(todo => {
+      return <TodoCard key={todo.id} todo={todo} />
     })
   }
 
   render() {
     return (
-      <div style={{ fontSize: 30 }}>
-        <ul>
-          {this.renderTodos()}
-        </ul>
-        <button onClick={this.onClick.bind(this, 24)}>
-          Contador
-        </button>
-        <div>{this.state.propiedad2}</div>
-        <BannerComponent 
-          display={`El contador está en ${this.state.contador}`}>
-        </BannerComponent>
+      <div style={styles.cardContainer}>
+        {this.renderTodos()}
       </div>
     )
   }
 }
 
-const Banner = (props) => (<div>{props.display}</div>)
-
-class BannerComponent extends Component{
-  render(){
-    return (
-      <div>
-        <h1>{this.props.display}</h1>
-        {this.props.children}
-      </div>
-    )
+const styles = {
+  card: {
+    transition: '0.2s ease-in-out',
+    border: 'solid 1px gray',
+    width: 300,
+    height: 100,
+    marginBottom: '1em',
+    padding: 10,
+  },
+  cardContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 10
   }
 }
 
